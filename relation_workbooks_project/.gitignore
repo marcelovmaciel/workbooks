@@ -1,0 +1,11 @@
+.lake/
+.codex
+build/
+
+*.olean
+*.ilean
+*.c
+*.o
+*.so
+
+.DS_Store

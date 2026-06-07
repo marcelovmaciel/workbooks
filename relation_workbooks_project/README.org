@@ -1,0 +1,31 @@
+#+title: Relation Workbooks Lean Project v3
+
+
+
+This is the material Im using to code along Roberts Measurement Theory.
+
+- ~RelationWorkbooks/Workbook1.lean~
+  - plain unbundled relations as ~α → α → Prop~
+- ~RelationWorkbooks/Workbook3.lean~
+  - same representation, but with a more mathlib-oriented presentation
+  - imports ~Mathlib.Logic.Relation~
+  - uses ~Function.swap~ for converse
+
+* Command line sequence
+
+#+begin_src bash
+lake update
+lake build
+#+end_src
+
+If cache download works on your machine:
+
+#+begin_src bash
+lake exe cache get
+lake build
+#+end_src
+
+* Recommended workflow
+
+Start in ~RelationWorkbooks/Workbook3.lean~.
+Use ~Workbook1.lean~ only as the simpler baseline.
