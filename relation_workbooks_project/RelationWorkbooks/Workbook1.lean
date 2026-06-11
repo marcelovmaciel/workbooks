@@ -7,6 +7,9 @@ You should replace each `by sorry` with a proof.
 -/
 import Mathlib.Tactic.Push
 import Mathlib.Tactic.Use
+import Mathlib.Data.Fintype.Basic
+import Mathlib.Tactic.FinCases
+
 
 universe u
 
@@ -148,18 +151,32 @@ theorem ex2f_inter_transitive {R S : Rel α} :
     exact ⟨hR hab.1 hbc.1, hS hab.2 hbc.2⟩
 
 theorem ex2g_inter_negTransitive_counterexample :
-  ∃ (R S : Rel α),
+  ∃ (R S : Rel (Fin 3)),
     NegTransitive R ∧
     NegTransitive S ∧
     ¬ NegTransitive (inter R S) := by
-    sorry
+    let a : Fin 3 := 0
+    let b : Fin 3 := 1
+    let c : Fin 3 := 2
+    let R : Rel (Fin 3) := fun x y => (x = a ∧ y = b) ∨ (x = a ∧ y = c)
+    let S : Rel (Fin 3) := fun x y => (x = b ∧ y = c) ∨ (x = a ∧ y = c)
+    have hR : NegTransitive R := by
+        intro x y z hRxy hRyz
+        fin_cases x <;> fin_cases y <;> fin_cases z <;> simp [R, a, b, c] at *
+    have hS : NegTransitive S := by
+        intro x y z hSxy hSyz
+        fin_cases x <;> fin_cases y <;> fin_cases z <;> simp [S, a, b, c] at *
+    have hInter : ¬ NegTransitive (inter R S) := by
+        intro h
+        have hab : ¬ inter R S a b := by
+            simp [inter, R, S, a, b, c]
+        have hbc : ¬ inter R S b c := by
+            simp [inter, R, S, a, b, c]
+        have hac : inter R S a c := by
+            simp [inter, R, S, a, b, c]
+        exact h hab hbc hac
+    exact ⟨R, S, hR, hS, hInter⟩
 
-
-theorem ex3a_union_reflexive {R S : Rel α} :
-    Reflexive R → Reflexive S → Reflexive (union R S) := by
-    intro hR hS a
-    unfold union
-    exact Or.inl (hR a)
 
 theorem ex3b_union_irreflexive {R S : Rel α} :
     Irreflexive R → Irreflexive S → Irreflexive (union R S) := by
