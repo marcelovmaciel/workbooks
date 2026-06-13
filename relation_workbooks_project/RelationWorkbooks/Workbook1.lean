@@ -9,7 +9,7 @@ import Mathlib.Tactic.Push
 import Mathlib.Tactic.Use
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Tactic.FinCases
-
+import Mathlib.Tactic.NormNum
 
 universe u
 
@@ -200,10 +200,25 @@ theorem ex3c_union_symmetric {R S : Rel α} :
     ·
         exact Or.inr (hS hSab)
 
-theorem ex3d_union_asymmetric {R S : Rel α} :
-    ∃ (R S : Rel α),
+theorem ex3d_union_asymmetric :
+  ∃ (R S : Rel (Fin 2)),
     Asymmetric R ∧ Asymmetric S ∧ ¬ Asymmetric (union R S) := by
-    sorry
+    let R : Rel (Fin 2) := fun x y => (x = 0 ∧ y = 1)
+    let S : Rel (Fin 2) := fun x y => (x = 1 ∧ y = 0)
+    have hR : Asymmetric R := by
+        intro x y hRxy
+        fin_cases x <;> fin_cases y <;> simp [R] at *
+    have hS : Asymmetric S := by
+        intro x y hSxy
+        fin_cases x <;> fin_cases y <;> simp [S] at *
+    have hNotAsymm : ¬ Asymmetric (union R S) := by
+        intro hAsymm
+        have h01 : union R S 0 1 := by
+            exact Or.inl ⟨rfl, rfl⟩
+        have h10 : union R S 1 0 := by
+            exact Or.inr ⟨rfl, rfl⟩
+        exact hAsymm h01 h10
+    exact ⟨R, S, hR, hS, hNotAsymm⟩
 
 
 
@@ -211,12 +226,65 @@ theorem ex3d_union_asymmetric {R S : Rel α} :
 
 
 
-theorem ex3e_union_antisymmetric {R S : Rel α} :
-    Antisymmetric R → Antisymmetric S → Antisymmetric (union R S) := by
-    sorry
 
-theorem ex3f_union_transitive {R S : Rel α} :
-    Transitive R → Transitive S → Transitive (union R S) := by sorry
+
+
+
+theorem ex3e_union_antisymmetric :
+  ∃ (R S : Rel (Fin 2)),
+    Antisymmetric R ∧ Antisymmetric S ∧ ¬ Antisymmetric (union R S) := by
+    let R : Rel (Fin 2) := fun x y => x = 0 ∧ y = 1
+    let S : Rel (Fin 2) := fun x y => x = 1 ∧ y = 0
+
+    have hR : Antisymmetric R := by
+        intro x y hxy hyx
+        rcases hxy with ⟨rfl, rfl⟩
+        simp [R] at hyx
+
+    have hS : Antisymmetric S := by
+        intro x y hxy hyx
+        rcases hxy with ⟨rfl, rfl⟩
+        simp [S] at hyx
+
+    have hNotAntisymm : ¬ Antisymmetric (union R S) := by
+        intro hAnti
+        have h01 : union R S 0 1 := by
+            exact Or.inl ⟨rfl, rfl⟩
+        have h10 : union R S 1 0 := by
+            exact Or.inr ⟨rfl, rfl⟩
+        have hEq : (0 : Fin 2) = 1 := hAnti h01 h10
+        norm_num at hEq
+
+    exact ⟨R, S, hR, hS, hNotAntisymm⟩
+
+theorem ex3f_union_transitive :
+  ∃ (R S : Rel (Fin 3)),
+    Transitive R ∧ Transitive S ∧ ¬ Transitive (union R S) := by
+    let R : Rel (Fin 3) := fun x y => x = 0 ∧ y = 1
+    let S : Rel (Fin 3) := fun x y => x = 1 ∧ y = 2
+
+    have hR : Transitive R := by
+        intro x y z hxy hyz
+        fin_cases x <;> fin_cases y <;> fin_cases z <;> simp [R] at *
+
+    have hS : Transitive S := by
+        intro x y z hxy hyz
+        fin_cases x <;> fin_cases y <;> fin_cases z <;> simp [S] at *
+
+    have hNotTrans : ¬ Transitive (union R S) := by
+        intro hTrans
+        have h01 : union R S 0 1 := by
+            exact Or.inl ⟨rfl, rfl⟩
+        have h12 : union R S 1 2 := by
+            exact Or.inr ⟨rfl, rfl⟩
+        have h02 : union R S 0 2 := hTrans h01 h12
+        rcases h02 with hR02 | hS02
+        ·
+            simp [R] at hR02
+        ·
+            simp [S] at hS02
+
+    exact ⟨R, S, hR, hS, hNotTrans⟩
 
 theorem ex3g_union_negTransitive {R S : Rel α} :
     NegTransitive R → NegTransitive S → NegTransitive (union R S) := by sorry
