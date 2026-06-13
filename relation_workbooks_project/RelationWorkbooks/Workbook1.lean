@@ -287,12 +287,26 @@ theorem ex3f_union_transitive :
     exact ⟨R, S, hR, hS, hNotTrans⟩
 
 theorem ex3g_union_negTransitive {R S : Rel α} :
-    NegTransitive R → NegTransitive S → NegTransitive (union R S) := by sorry
+    NegTransitive R → NegTransitive S → NegTransitive (union R S) := by
+    intro hR hS a b c hab hbc
+    unfold union at *
+    push Not at *
+    exact  ⟨ hR hab.left hbc.left, hS hab.right hbc.right⟩
+
 
 theorem ex4a_comp_reflexive {R S : Rel α} :
-    Reflexive R → Reflexive S → Reflexive (comp R S) := by sorry
+    Reflexive R → Reflexive S → Reflexive (comp R S) := by
+    intro hR hS a
+    unfold comp
+    use a
+    exact ⟨hR a, hS a⟩
+
+
 theorem ex4b_comp_irreflexive {R S : Rel α} :
-    Irreflexive R → Irreflexive S → Irreflexive (comp R S) := by sorry
+    Irreflexive R → Irreflexive S → Irreflexive (comp R S) := by
+    intro hR hS a h
+    rcases h with ⟨a, hRab, hSbc⟩
+
 theorem ex4c_comp_symmetric {R S : Rel α} :
     Symmetric R → Symmetric S → Symmetric (comp R S) := by sorry
 theorem ex4d_comp_asymmetric {R S : Rel α} :
