@@ -301,16 +301,82 @@ theorem ex4a_comp_reflexive {R S : Rel α} :
     use a
     exact ⟨hR a, hS a⟩
 
+theorem ex4b_comp_irreflexive_counterexample :
+    ∃ (R S : Rel (Fin 2)),
+      Irreflexive R ∧ Irreflexive S ∧ ¬ Irreflexive (comp R S) := by
+    let R : Rel (Fin 2) := fun x y => x = 0 ∧ y = 1
+    let S : Rel (Fin 2) := fun x y => x = 1 ∧ y = 0
 
-theorem ex4b_comp_irreflexive {R S : Rel α} :
-    Irreflexive R → Irreflexive S → Irreflexive (comp R S) := by
-    intro hR hS a h
-    rcases h with ⟨a, hRab, hSbc⟩
+    have hR : Irreflexive R := by
+        intro x hRxx
+        fin_cases x <;> simp [R] at hRxx
 
-theorem ex4c_comp_symmetric {R S : Rel α} :
-    Symmetric R → Symmetric S → Symmetric (comp R S) := by sorry
-theorem ex4d_comp_asymmetric {R S : Rel α} :
-    Asymmetric R → Asymmetric S → Asymmetric (comp R S) := by sorry
+    have hS : Irreflexive S := by
+        intro x hSxx
+        fin_cases x <;> simp [S] at hSxx
+
+    have hNotIrrefl : ¬ Irreflexive (comp R S) := by
+        intro hIrrefl
+        have h00 : comp R S 0 0 := by
+            exact ⟨1, ⟨⟨rfl, rfl⟩, ⟨rfl, rfl⟩⟩⟩
+        exact hIrrefl 0 h00
+
+    exact ⟨R, S, hR, hS, hNotIrrefl⟩
+
+theorem ex4c_comp_symmetric  :
+     ∃ (R S : Rel (Fin 3)),
+      Symmetric R ∧ Symmetric S ∧ ¬ Symmetric (comp R S) := by
+    let R : Rel (Fin 3) := fun x y => (x = 0 ∧ y = 1) ∨ (x = 1 ∧ y = 0)
+    let S : Rel (Fin 3) := fun x y => (x = 0 ∧ y = 2) ∨ (x = 2 ∧ y = 0)
+
+    have hR : Symmetric R := by
+        intro x y hRxy
+        fin_cases x <;> fin_cases y <;> simp [R] at *
+    have hS : Symmetric S := by
+        intro x y hSxy
+        fin_cases x <;> fin_cases y <;> simp [S] at *
+    have hNotSymm : ¬ Symmetric (comp R S) := by
+        intro hSymm
+        have h12 : comp R S 1 2 := by
+            exact ⟨0, ⟨Or.inr ⟨rfl, rfl⟩, Or.inl ⟨rfl, rfl⟩⟩⟩
+        have h21 : comp R S 2 1 := hSymm h12
+        rcases h21 with ⟨b, hRb, hSb⟩
+        fin_cases b <;> simp [R] at hRb
+
+    exact ⟨R, S, hR, hS, hNotSymm⟩
+
+
+    -- now we can use b as the witness for the symmetric pair
+
+
+
+
+
+
+
+theorem ex4d_comp_asymmetric_counterexample :
+    ∃ (R S : Rel (Fin 2)),
+      Asymmetric R ∧ Asymmetric S ∧ ¬ Asymmetric (comp R S) := by
+    let R : Rel (Fin 2) := fun x y => x = 0 ∧ y = 1
+    let S : Rel (Fin 2) := fun x y => x = 1 ∧ y = 0
+
+    have hR : Asymmetric R := by
+        intro x y hRxy
+        fin_cases x <;> fin_cases y <;> simp [R] at *
+
+    have hS : Asymmetric S := by
+        intro x y hSxy
+        fin_cases x <;> fin_cases y <;> simp [S] at *
+
+    have hNotAsymm : ¬ Asymmetric (comp R S) := by
+        intro hAsymm
+        have h00 : comp R S 0 0 := by
+            exact ⟨1, ⟨⟨rfl, rfl⟩, ⟨rfl, rfl⟩⟩⟩
+        exact hAsymm h00 h00
+
+    exact ⟨R, S, hR, hS, hNotAsymm⟩
+
+
 theorem ex4e_comp_antisymmetric {R S : Rel α} :
     Antisymmetric R → Antisymmetric S → Antisymmetric (comp R S) := by sorry
 theorem ex4f_comp_transitive {R S : Rel α} :
