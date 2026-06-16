@@ -377,8 +377,33 @@ theorem ex4d_comp_asymmetric_counterexample :
     exact ⟨R, S, hR, hS, hNotAsymm⟩
 
 
-theorem ex4e_comp_antisymmetric {R S : Rel α} :
-    Antisymmetric R → Antisymmetric S → Antisymmetric (comp R S) := by sorry
+theorem ex4e_comp_antisymmetric :
+    ∃ (R S : Rel (Fin 4)),
+      Antisymmetric R ∧ Antisymmetric S ∧ ¬ Antisymmetric (comp R S) := by
+    let R : Rel (Fin 4) := fun x y => (x = 0 ∧ y = 2) ∨ (x = 1 ∧ y = 3)
+    let S : Rel (Fin 4) := fun x y => (x = 2 ∧ y = 1) ∨ (x = 3 ∧ y = 0)
+
+    have hR : Antisymmetric R := by
+        intro x y hxy hyx
+        fin_cases x <;> fin_cases y <;> simp [R] at *
+
+    have hS : Antisymmetric S := by
+        intro x y hxy hyx
+        fin_cases x <;> fin_cases y <;> simp [S] at *
+
+    have hNotAntisymm : ¬ Antisymmetric (comp R S) := by
+        intro hAntisymm
+        have h01 : comp R S 0 1 := by
+            exact ⟨2, ⟨Or.inl ⟨rfl, rfl⟩, Or.inl ⟨rfl, rfl⟩⟩⟩
+        have h10 : comp R S 1 0 := by
+            exact ⟨3, ⟨Or.inr ⟨rfl, rfl⟩, Or.inr ⟨rfl, rfl⟩⟩⟩
+        have h01eq : (0 : Fin 4) = 1 := hAntisymm h01 h10
+        norm_num at h01eq
+
+    exact ⟨R, S, hR, hS, hNotAntisymm⟩
+
+
+
 theorem ex4f_comp_transitive {R S : Rel α} :
     Transitive R → Transitive S → Transitive (comp R S) := by sorry
 theorem ex4g_comp_negTransitive {R S : Rel α} :
