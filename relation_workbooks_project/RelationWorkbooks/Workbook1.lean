@@ -403,11 +403,62 @@ theorem ex4e_comp_antisymmetric :
     exact ⟨R, S, hR, hS, hNotAntisymm⟩
 
 
+theorem ex4f_comp_transitive :
+    ∃ (R S : Rel (Fin 3)),
+      Transitive R ∧ Transitive S ∧ ¬ Transitive (comp R S) := by
+    let R : Rel (Fin 3) := fun x y => (x = 0 ∧ y = 0) ∨ (x = 1 ∧ y = 2)
+    let S : Rel (Fin 3) := fun x y => (x = 0 ∧ y = 1) ∨ (x = 2 ∧ y = 2)
 
-theorem ex4f_comp_transitive {R S : Rel α} :
-    Transitive R → Transitive S → Transitive (comp R S) := by sorry
-theorem ex4g_comp_negTransitive {R S : Rel α} :
-    NegTransitive R → NegTransitive S → NegTransitive (comp R S) := by sorry
+    have hR : Transitive R := by
+        intro x y z hxy hyz
+        fin_cases x <;> fin_cases y <;> fin_cases z <;> simp [R] at *
+
+    have hS : Transitive S := by
+        intro x y z hxy hyz
+        fin_cases x <;> fin_cases y <;> fin_cases z <;> simp [S] at *
+
+    have hNotTrans : ¬ Transitive (comp R S) := by
+        intro hTrans
+        have h01 : comp R S 0 1 := by
+            exact ⟨0, ⟨Or.inl ⟨rfl, rfl⟩, Or.inl ⟨rfl, rfl⟩⟩⟩
+        have h12 : comp R S 1 2 := by
+            exact ⟨2, ⟨Or.inr ⟨rfl, rfl⟩, Or.inr ⟨rfl, rfl⟩⟩⟩
+        have h02 : comp R S 0 2 := hTrans h01 h12
+        rcases h02 with ⟨b, hRb, hSb⟩
+        fin_cases b <;> simp [R, S] at hRb hSb
+
+    exact ⟨R, S, hR, hS, hNotTrans⟩
+
+
+theorem ex4g_comp_negTransitive :
+    ∃ (R S : Rel (Fin 2)),
+      NegTransitive R ∧ NegTransitive S ∧ ¬ NegTransitive (comp R S) := by
+    let R : Rel (Fin 2) := fun x y => x = 0 ∧ y = 1
+    let S : Rel (Fin 2) := fun x y => x = 1 ∧ y = 0
+
+    have hR : NegTransitive R := by
+        intro x y z hxy hyz hxz
+        fin_cases x <;> fin_cases y <;> fin_cases z <;> simp [R] at *
+
+    have hS : NegTransitive S := by
+        intro x y z hxy hyz hxz
+        fin_cases x <;> fin_cases y <;> fin_cases z <;> simp [S] at *
+
+    have hNotNegTrans : ¬ NegTransitive (comp R S) := by
+        intro hNegTrans
+        have hNot01 : ¬ comp R S 0 1 := by
+            intro h01
+            rcases h01 with ⟨b, hRb, hSb⟩
+            fin_cases b <;> simp [R, S] at hRb hSb
+        have hNot10 : ¬ comp R S 1 0 := by
+            intro h10
+            rcases h10 with ⟨b, hRb, hSb⟩
+            fin_cases b <;> simp [R] at hRb
+        have hNot00 : ¬ comp R S 0 0 := hNegTrans hNot01 hNot10
+        apply hNot00
+        exact ⟨1, ⟨⟨rfl, rfl⟩, ⟨rfl, rfl⟩⟩⟩
+
+    exact ⟨R, S, hR, hS, hNotNegTrans⟩
 
 theorem ex5a_empty_reflexive [Nonempty α] : ¬ Reflexive (@emptyRel α) := by
 
@@ -415,9 +466,6 @@ theorem ex5a_empty_reflexive [Nonempty α] : ¬ Reflexive (@emptyRel α) := by
     push Not
     rcases ‹Nonempty α› with ⟨a⟩ -- TODO, study this notation!
     use a
-
-
-
 
 
 theorem ex5b_empty_irreflexive : Irreflexive (@emptyRel α) := by
@@ -428,17 +476,43 @@ theorem ex5c_empty_symmetric : Symmetric (@emptyRel α) := by
     unfold Symmetric emptyRel
     intro a b h
     exact h
-theorem ex5d_empty_asymmetric : Asymmetric (@emptyRel α) := by sorry
+
+theorem ex5d_empty_asymmetric : Asymmetric (@emptyRel α) := by
+    intro a b h
+    contradiction
 
 
-theorem ex5e_empty_antisymmetric : Antisymmetric (@emptyRel α) := by sorry
-theorem ex5f_empty_transitive : Transitive (@emptyRel α) := by sorry
-theorem ex5g_empty_negTransitive : NegTransitive (@emptyRel α) := by sorry
 
-theorem ex6a_full_reflexive : Reflexive (@fullRel α) := by sorry
-theorem ex6b_full_irreflexive : Irreflexive (@fullRel α) := by sorry
-theorem ex6c_full_symmetric : Symmetric (@fullRel α) := by sorry
-theorem ex6d_full_asymmetric : Asymmetric (@fullRel α) := by sorry
+theorem ex5e_empty_antisymmetric : Antisymmetric (@emptyRel α) := by
+    intro a b h1 h2
+    contradiction
+theorem ex5f_empty_transitive : Transitive (@emptyRel α) := by
+    intro a b c h1 h2
+    contradiction
+theorem ex5g_empty_negTransitive : NegTransitive (@emptyRel α) := by
+    intro a b c h1 h2 h3
+    contradiction
+
+theorem ex6a_full_reflexive : Reflexive (@fullRel α) := by
+    intro a
+    trivial
+
+theorem ex6b_full_irreflexive [Nonempty α]  : ¬ Irreflexive (@fullRel α) := by
+    intro h
+    dsimp [Irreflexive, fullRel] at h
+    rcases ‹Nonempty α› with ⟨inst⟩
+    specialize h inst
+    push Not at h
+    exact h
+
+
+
+theorem ex6c_full_symmetric : Symmetric (@fullRel α) := by
+    intro a b h
+    trivial
+theorem ex6d_full_asymmetric :  Asymmetric (@fullRel α) := by
+    sorry
+
 theorem ex6e_full_antisymmetric : Antisymmetric (@fullRel α) := by sorry
 theorem ex6f_full_transitive : Transitive (@fullRel α) := by sorry
 theorem ex6g_full_negTransitive : NegTransitive (@fullRel α) := by sorry
