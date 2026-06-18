@@ -510,11 +510,42 @@ theorem ex6b_full_irreflexive [Nonempty α]  : ¬ Irreflexive (@fullRel α) := b
 theorem ex6c_full_symmetric : Symmetric (@fullRel α) := by
     intro a b h
     trivial
-theorem ex6d_full_asymmetric :  Asymmetric (@fullRel α) := by
-    sorry
 
-theorem ex6e_full_antisymmetric : Antisymmetric (@fullRel α) := by sorry
-theorem ex6f_full_transitive : Transitive (@fullRel α) := by sorry
-theorem ex6g_full_negTransitive : NegTransitive (@fullRel α) := by sorry
+
+theorem ex6d_full_asymmetric  [Nonempty α]:  ¬ Asymmetric (@fullRel α) := by
+    intro h
+    rcases ‹Nonempty α› with ⟨inst⟩
+    have h00 : @fullRel α inst inst := by
+        trivial
+    exact h h00 h00
+
+
+
+-- antysymmetry of the full relation depends on  the type! it is antisymmetric if the type is empty, but not if it has at least 2 elements
+
+theorem ex6e_full_antisymmetric_empty : Antisymmetric (@fullRel PEmpty) := by
+    intro a b h1 h2
+    cases a
+
+
+theorem ex6e_full_antisymmetric_singleton : Antisymmetric (@fullRel (Fin 1)) := by
+    intro a b h1 h2
+    fin_cases a;fin_cases b; simp [fullRel] at *
+
+
+theorem ex6e_full_antisymmetric :
+    ¬ Antisymmetric (@fullRel (Fin 2)) := by
+  intro h
+  have h01 : (0 : Fin 2) = 1 :=
+    h (a := 0) (b := 1) trivial trivial
+  norm_num at h01
+
+theorem ex6f_full_transitive : Transitive (@fullRel α) := by
+    intro a b c h1 h2
+    trivial
+
+theorem ex6g_full_negTransitive : NegTransitive (@fullRel α) := by
+    intro a b c h1 h2 h3
+    trivial
 
 end RelationWorkbook1
