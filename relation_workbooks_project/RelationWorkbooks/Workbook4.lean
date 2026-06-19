@@ -79,9 +79,11 @@ O complemento simétrico é sempre simétrico.
 Tática sugerida:
 `intro`, depois trocar as componentes do par.
 -/
-theorem symmCompl_symmetric (R : Rel α) :
-    ∀ ⦃a b⦄, symmCompl R a b → symmCompl R b a := by
-  sorry
+theorem symmCompl_symmetric {α : Type u} (R : Rel α) :
+    Symmetric (symmCompl R) := by
+    intro a b h
+    dsimp [symmCompl] at *
+    exact ⟨h.2, h.1⟩
 
 /--
 Expansão correta do duplo complemento simétrico.
@@ -89,38 +91,83 @@ Expansão correta do duplo complemento simétrico.
 Moral:
 construtivamente, o duplo complemento simétrico dá
 `nnComparable`, não `comparable`.
-
-Tática sugerida:
-`intro a b`, `unfold`, `constructor`.
-A dificuldade aqui é apenas desenrolar as definições com cuidado.
 -/
 theorem symmCompl_symmCompl_iff_nnComparable (R : Rel α) :
     ∀ a b, symmCompl (symmCompl R) a b ↔ nnComparable R a b := by
-  sorry
+  intro a b
+  constructor
+  · intro h
+    dsimp [symmCompl] at h
+    exact h.1
+  · intro h
+    dsimp [symmCompl]
+    constructor
+    · intro hab
+      dsimp [nnComparable] at h
+      contradiction
+    · intro hba
+      dsimp [nnComparable] at h
+      -- aqui 'e so flip hba dado que A ∧ B 'e o mesmo que B ∧ A
+      have hab : ¬ R a b ∧ ¬ R b a := ⟨hba.2, hba.1⟩
+      contradiction
+
 
 /--
 Comparabilidade efetiva implica não não-comparabilidade.
 
 Este é o lado construtivamente válido.
 A recíproca é o ponto onde a lógica clássica entra.
-
-Tática sugerida:
-`intro a b h`, reescrever com o teorema anterior,
-`unfold comparable`, `cases h`, depois contradizer o par de negações.
 -/
 theorem comparable_imp_nnComparable (R : Rel α) :
     ∀ a b, comparable R a b → nnComparable R a b := by
-  sorry
-
+  intro a b h
+  dsimp [comparable] at h
+  dsimp [nnComparable]
+  intro h2
+  dsimp [union] at h
+  cases h with
+  | inl hab =>
+    have hnab := h2.1
+    contradiction
+  | inr hba =>
+    have hnba := h2.2
+    contradiction
 /--
 Versão equivalente via duplo complemento simétrico.
 
-Tática sugerida:
-use o teorema anterior e o teorema de expansão.
 -/
 theorem comparable_imp_symmCompl_symmCompl (R : Rel α) :
     ∀ a b, comparable R a b → symmCompl (symmCompl R) a b := by
-  sorry
+  intro a b h
+  dsimp [comparable, union] at h
+  dsimp [symmCompl]
+  constructor
+  · intro hab
+    cases h with
+    | inl hab' =>
+      have hnab := hab.1
+      contradiction
+    | inr hba =>
+      dsimp [converse, Function.swap] at hba
+      have hnab := hab.2
+      contradiction
+  · intro hba
+    cases h with
+    | inl hab =>
+      have hnba := hba.2
+      contradiction
+    | inr hba' =>
+      dsimp [converse, Function.swap] at hba'
+      have hnba := hba.1
+      contradiction
+
+
+
+
+
+
+
+
 
 /-!
 ## Parte II. O passo adicional: decidibilidade local
@@ -166,12 +213,7 @@ theorem symmCompl_symmCompl_iff_comparable_of_decidable
 
 variable (W : Rel α)
 
-/--
-`W a b` lê-se:
-"a é pelo menos tão bom quanto b".
--/
 
-/-- Estrito derivado de `W`. -/
 def strictFromWeak : Rel α :=
   fun a b => W a b ∧ ¬ W b a
 
@@ -206,8 +248,6 @@ theorem incomparFromWeak_iff_symmCompl_weak :
 Sob decidibilidade local, o complemento simétrico do estrito derivado
 é indiferença OU incomparabilidade.
 
-Este teorema preserva o conteúdo do workbook antigo,
-mas agora a hipótese lógica está explícita.
 
 Tática sugerida:
 `unfold` tudo.
