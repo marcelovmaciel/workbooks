@@ -138,29 +138,28 @@ Versão equivalente via duplo complemento simétrico.
 -/
 theorem comparable_imp_symmCompl_symmCompl (R : Rel α) :
     ∀ a b, comparable R a b → symmCompl (symmCompl R) a b := by
-  intro a b h
-  dsimp [comparable, union] at h
+  intro a b hcomp
+  dsimp [comparable, union] at hcomp
   dsimp [symmCompl]
   constructor
-  · intro hab
-    cases h with
-    | inl hab' =>
-      have hnab := hab.1
+  · intro hn_symm_ab
+    obtain hab | hconv_ab := hcomp
+    ·
+      have hnab := hn_symm_ab.1
       contradiction
-    | inr hba =>
-      dsimp [converse, Function.swap] at hba
-      have hnab := hab.2
+    ·
+      dsimp [converse, Function.swap] at hconv_ab
+      have hnba := hn_symm_ab.2
       contradiction
-  · intro hba
-    cases h with
-    | inl hab =>
-      have hnba := hba.2
+  · intro hn_symm_ba
+    obtain hab | hconv_ab := hcomp
+    ·
+      have hnab := hn_symm_ba.2
       contradiction
-    | inr hba' =>
-      dsimp [converse, Function.swap] at hba'
-      have hnba := hba.1
+    ·
+      dsimp [converse, Function.swap] at hconv_ab
+      have hnba := hn_symm_ba.1
       contradiction
-
 
 
 
@@ -203,9 +202,53 @@ encadear os teoremas anteriores.
 theorem symmCompl_symmCompl_iff_comparable_of_decidable
     (R : Rel α)
     (a b : α)
-    [Decidable (R a b)] [Decidable (R b a)] :
+    [d1 : Decidable (R a b)] [d2 : Decidable (R b a)] :
     symmCompl (symmCompl R) a b ↔ comparable R a b := by
-  sorry
+  constructor
+  intro h
+
+  obtain n | y := d1
+  obtain n' | y' := d2
+  ·
+   dsimp [comparable, converse, union, Function.swap]
+   dsimp [symmCompl] at h
+   have hnab := h.1
+   have nrab_and_nrba : ¬ R a b ∧ ¬ R b a := ⟨n, n'⟩
+   contradiction
+  ·
+    dsimp [comparable, converse, union, Function.swap]
+    dsimp [symmCompl] at h
+    right
+    exact y'
+  ·
+    dsimp [comparable, converse, union, Function.swap]
+    dsimp [symmCompl] at h
+    left
+    exact y
+  ·
+    dsimp [comparable, converse, union, Function.swap]
+    intro  h
+    dsimp [symmCompl]
+    constructor
+    intro n
+    obtain hab | hconv_ab := h
+    have hnab := n.1
+    contradiction
+
+    have hnba := n.2
+    contradiction
+    intro h2
+    obtain hab | hconv_ab := h
+    have hnab := h2.2
+    contradiction
+    have hnba := h2.1
+    contradiction
+
+
+
+
+
+
 
 /-!
 ## Parte III. Começando com uma preferência fraca primitiva
