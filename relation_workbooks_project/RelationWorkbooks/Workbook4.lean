@@ -1,6 +1,6 @@
 import Mathlib.Logic.Relation
 import Mathlib.Logic.Function.Basic
-
+import Mathlib.Tactic.Push
 /-
 Workbook 4
 
@@ -178,20 +178,20 @@ não não-comparabilidade implica comparabilidade efetiva.
 
 Este é o ponto lógico delicado.
 Sem essas hipóteses, não tente provar isso intuicionisticamente.
-
-Tática sugerida:
-`intro h`, `unfold`.
-Faça `by_cases hab : R a b`.
-Se esse caso falhar, faça `by_cases hba : R b a`.
-Se ambos falham, contradiga `h`.
 -/
 theorem nnComparable_imp_comparable_of_decidable
     (R : Rel α)
     (a b : α)
     [Decidable (R a b)] [Decidable (R b a)] :
     nnComparable R a b → comparable R a b := by
-  sorry
-
+  intro h
+  dsimp [nnComparable] at h
+  dsimp [comparable, union, converse, Function.swap]
+  by_cases hab : R a b
+  · exact Or.inl hab
+  · by_cases hba : R b a
+    · exact Or.inr hba
+    · exact False.elim (h ⟨hab, hba⟩)
 /--
 Sob decidibilidade local, o duplo complemento simétrico
 vira comparabilidade efetiva.
@@ -244,7 +244,17 @@ theorem symmCompl_symmCompl_iff_comparable_of_decidable
     have hnba := h2.1
     contradiction
 
-
+theorem symmCompl_symmCompl_iff_comparable_of_decidable'
+    (R : Rel α)
+    (a b : α)
+    [Decidable (R a b)] [Decidable (R b a)] :
+    symmCompl (symmCompl R) a b ↔ comparable R a b := by
+  constructor
+  · intro h
+    exact nnComparable_imp_comparable_of_decidable R a b
+      ((symmCompl_symmCompl_iff_nnComparable R a b).1 h)
+  · intro h
+    exact comparable_imp_symmCompl_symmCompl R a b h
 
 
 
@@ -280,32 +290,26 @@ def nnWeakComparable : Rel α :=
 A incomparabilidade derivada de `W` é, definicionalmente,
 o complemento simétrico de `W`.
 
-Tática sugerida:
-isto deve ser `rfl`.
+
 -/
 theorem incomparFromWeak_iff_symmCompl_weak :
     ∀ a b, incomparFromWeak W a b ↔ symmCompl W a b := by
-  sorry
+  intro a b
+  rfl
+
 
 /--
 Sob decidibilidade local, o complemento simétrico do estrito derivado
 é indiferença OU incomparabilidade.
 
-
-Tática sugerida:
-`unfold` tudo.
-Depois faça casos em `W a b` e em `W b a`.
-Serão quatro casos.
-Dois casos dão contradição.
-Os outros dois dão os dois lados do `∨`.
-Na volta, faça `constructor`, depois `cases h`.
 -/
-theorem symmCompl_strictFromWeak_iff_indiff_or_incompar_of_decidable
+theorem symmCompl_strictFromWeak_iff_indiff_or_incompar_of_decidable'
     (a b : α)
     [Decidable (W a b)] [Decidable (W b a)] :
     symmCompl (strictFromWeak W) a b ↔
     union (indiffFromWeak W) (incomparFromWeak W) a b := by
-  sorry
+  dsimp [symmCompl, strictFromWeak, indiffFromWeak, incomparFromWeak, union]
+  by_cases hab : W a b <;> by_cases hba : W b a <;> simp [hab, hba]
 
 /--
 Completude de uma relação fraca.
@@ -313,17 +317,19 @@ Completude de uma relação fraca.
 def Complete (R : Rel α) : Prop :=
   ∀ a b, R a b ∨ R b a
 
-/--
-Se `W` é completa, então não há incomparabilidade derivada.
-
-Tática sugerida:
-`intro a b hinc`, `unfold incomparFromWeak at hinc`,
-use `hW a b`, faça `cases`.
--/
 theorem incomparFromWeak_empty_if_complete
     (hW : Complete W) :
     ∀ a b, ¬ incomparFromWeak W a b := by
-  sorry
+  intro a b h
+  dsimp [incomparFromWeak] at h
+  have hcomp := hW a b
+  cases hcomp with
+  | inl hab =>
+    have hnab := h.1
+    contradiction
+  | inr hba =>
+    have hnba := h.2
+    contradiction
 
 /--
 Sob completude e decidibilidade local, o complemento simétrico
@@ -343,7 +349,17 @@ theorem symmCompl_strictFromWeak_iff_indiff_if_complete_of_decidable
     (a b : α)
     [Decidable (W a b)] [Decidable (W b a)] :
     symmCompl (strictFromWeak W) a b ↔ indiffFromWeak W a b := by
-  sorry
+  by_cases hab : W a b <;> by_cases hba : W b a <;> dsimp [symmCompl,
+   strictFromWeak, indiffFromWeak, incomparFromWeak, union] at * <;> simp [hab, hba]
+  have hcomp := hW a b
+  cases hcomp with
+  | inl hab =>
+    contradiction
+  | inr hba =>
+    contradiction
+
+
+
 
 /-!
 ## Parte IV. Começando com uma preferência estrita primitiva
