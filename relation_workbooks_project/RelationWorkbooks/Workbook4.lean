@@ -388,44 +388,42 @@ def nnStrictComparability : Rel α :=
 /--
 Expansão da definição de `neutralFromStrict`.
 
-Tática sugerida:
-`rfl`.
 -/
 theorem neutralFromStrict_iff :
     ∀ a b, neutralFromStrict P a b ↔ (¬ P a b ∧ ¬ P b a) := by
-  sorry
-
+  intro a b
+  rfl
 /--
 Expansão da definição de comparabilidade estrita.
 
-Tática sugerida:
-`intro`, `unfold`, `rfl`.
 -/
 theorem strictComparability_iff :
     ∀ a b, strictComparability P a b ↔ (P a b ∨ P b a) := by
-  sorry
+  intro a b
+  rfl
+
 
 /--
 Expansão da definição de não não-comparabilidade estrita.
 
-Tática sugerida:
-`rfl`.
 -/
 theorem nnStrictComparability_iff :
     ∀ a b, nnStrictComparability P a b ↔ ¬ (¬ P a b ∧ ¬ P b a) := by
-  sorry
+  intro a b
+  rfl
 
 /--
 Construtivamente, o duplo complemento simétrico do estrito primitivo
 dá não não-comparabilidade estrita.
-
-Tática sugerida:
-apenas `unfold` e use o teorema geral da Parte I.
 -/
 theorem symmCompl_neutralFromStrict_iff_nnStrictComparability :
     ∀ a b,
       symmCompl (neutralFromStrict P) a b ↔ nnStrictComparability P a b := by
-  sorry
+  dsimp [neutralFromStrict, nnStrictComparability]
+  intro a b
+  apply symmCompl_symmCompl_iff_nnComparable P a b
+
+
 
 /--
 Sob decidibilidade local, o duplo complemento simétrico
@@ -438,7 +436,8 @@ theorem symmCompl_neutralFromStrict_iff_strictComparability_of_decidable
     (a b : α)
     [Decidable (P a b)] [Decidable (P b a)] :
     symmCompl (neutralFromStrict P) a b ↔ strictComparability P a b := by
-  sorry
+  dsimp [neutralFromStrict, strictComparability, nnStrictComparability]
+  apply symmCompl_symmCompl_iff_comparable_of_decidable P a b
 
 /-!
 ## Parte V. Exercícios de leitura conceitual
