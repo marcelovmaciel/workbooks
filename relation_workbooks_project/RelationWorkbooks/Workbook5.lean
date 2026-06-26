@@ -1,5 +1,6 @@
 import Mathlib.Data.Set.Basic
 import Mathlib.Data.Finset.Basic
+import Mathlib.Data.Fintype.Card
 import Mathlib.Data.List.Basic
 import Mathlib.Order.Basic
 
@@ -112,29 +113,22 @@ These lemmas are basic warm-up exercises and are worth proving explicitly.
 -/
 
 @[simp] theorem idRel_iff (a b : A) : idRel a b ↔ a = b := by
-  rfl
+  sorry
 
 @[simp] theorem compRel_iff (S T : Rel A) (a b : A) :
     compRel S T a b ↔ ∃ c, T a c ∧ S c b := by
-  rfl
+  sorry
 
 @[simp] theorem relPow_zero (R : Rel A) : relPow R 0 = idRel := by
-  rfl
+  sorry
 
 @[simp] theorem relPow_succ (R : Rel A) (n : Nat) :
     relPow R (n + 1) = compRel (relPow R n) R := by
-  rfl
+  sorry
 
 /-- Unfold `R^1`. -/
 theorem relPow_one_eq (R : Rel A) : relPow R 1 = R := by
-  funext a b
-  constructor
-  · intro h
-    rcases h with ⟨c, h1, h2⟩
-    simpa [idRel] using h2
-  · intro h
-    refine ⟨a, ?_, h⟩
-    rfl
+  sorry
 
 /-- Unfold `R^2` into an existential intermediate vertex. -/
 theorem relPow_two_iff (R : Rel A) (a b : A) :
@@ -197,22 +191,17 @@ theorem relPow_add (R : Rel A) (m n : Nat) (a b c : A) :
 
 /-- Reachability is reflexive because there is always a path of length `0`. -/
 theorem reachable_refl (R : Rel A) (a : A) : Reachable R a a := by
-  refine ⟨0, ?_⟩
-  rfl
+  sorry
 
 /-- Every edge is a path of length `1`, hence gives reachability. -/
 theorem reachable_of_rel (R : Rel A) {a b : A} :
     R a b → Reachable R a b := by
-  intro h
-  refine ⟨1, ?_⟩
-  simpa [relPow_one_eq] using h
+  sorry
 
 /-- Reachability is transitive. This corresponds to the relation `S` in the exercise. -/
 theorem reachable_trans (R : Rel A) {a b c : A} :
     Reachable R a b → Reachable R b c → Reachable R a c := by
-  rintro ⟨m, hm⟩ ⟨n, hn⟩
-  refine ⟨m + n, ?_⟩
-  exact relPow_add R m n a b c hm hn
+  sorry
 
 /-!
 ## Third block: the relation `T = S ∩ S⁻¹`
@@ -226,29 +215,21 @@ if you define inverse and intersection of relations.
 
 theorem stronglyConnectedRel_refl (R : Rel A) (a : A) :
     StronglyConnectedRel R a a := by
-  exact ⟨reachable_refl R a, reachable_refl R a⟩
+  sorry
 
 theorem stronglyConnectedRel_symm (R : Rel A) {a b : A} :
     StronglyConnectedRel R a b → StronglyConnectedRel R b a := by
-  intro h
-  exact ⟨h.2, h.1⟩
+  sorry
 
 theorem stronglyConnectedRel_trans (R : Rel A) {a b c : A} :
     StronglyConnectedRel R a b → StronglyConnectedRel R b c →
     StronglyConnectedRel R a c := by
-  intro hab hbc
-  constructor
-  · exact reachable_trans R hab.1 hbc.1
-  · exact reachable_trans R hbc.2 hab.2
+  sorry
 
 /-- Mutual reachability is an equivalence relation. -/
 theorem stronglyConnectedRel_is_equivalence (R : Rel A) :
     Equivalence (StronglyConnectedRel R) := by
-  refine ⟨stronglyConnectedRel_refl R, ?_, ?_⟩
-  · intro a b
-    exact stronglyConnectedRel_symm R
-  · intro a b c
-    exact stronglyConnectedRel_trans R
+  sorry
 
 /-!
 ## Fourth block: strong connectedness of the whole relation
@@ -268,11 +249,7 @@ def IsStronglyConnected (R : Rel A) : Prop :=
 /-- Restatement of strong connectedness. -/
 theorem isStronglyConnected_iff (R : Rel A) :
     IsStronglyConnected R ↔ ∀ a b : A, Reachable R a b := by
-  constructor
-  · intro h a b
-    exact (h a b).1
-  · intro h a b
-    exact ⟨h a b, h b a⟩
+  sorry
 
 /-!
 ## Fifth block: transitive closure
@@ -307,13 +284,11 @@ def IsTransitiveClosure (R T : Rel A) : Prop :=
 
 /-- Reachability contains the original relation. -/
 theorem relSubset_reachable (R : Rel A) : RelSubset R (Reachable R) := by
-  intro a b h
-  exact reachable_of_rel R h
+  sorry
 
 /-- Reachability is transitive. -/
 theorem reachable_isTransitive (R : Rel A) : IsTransitive (Reachable R) := by
-  intro a b c hab hbc
-  exact reachable_trans R hab hbc
+  sorry
 
 /-- The crucial minimality lemma: any transitive relation containing `R`
 contains every finite power of `R`. -/
@@ -327,13 +302,7 @@ theorem relPow_subset_of_subset_trans
 /-- Therefore reachability is the transitive closure of `R`. -/
 theorem reachable_isTransitiveClosure (R : Rel A) :
     IsTransitiveClosure R (Reachable R) := by
-  constructor
-  · exact relSubset_reachable R
-  constructor
-  · exact reachable_isTransitive R
-  · intro U hRU hUtrans a b hab
-    rcases hab with ⟨n, hn⟩
-    exact relPow_subset_of_subset_trans R U hRU hUtrans n hn
+  sorry
 
 /-!
 ## Sixth block: relation to mathlib closures
